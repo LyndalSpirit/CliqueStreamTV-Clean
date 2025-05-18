@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# builds
+dist/
+.vite/
+
+# zips and large artifacts
+*.zip
+
+# Oracle JDK folder (if ever re-added)
+public/Oracle_JDK-24/
+
+# environment
+.env
+*.log
+.DS_Store
