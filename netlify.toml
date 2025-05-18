@@ -1,8 +1,9 @@
+# netlify.toml
 [build]
-  command   = "npm run build"
-  publish   = "dist"
+  command = "npm run build"
+  publish = "dist"
 
-# single-page app redirect so all routes serve index.html
+# For single-page-app routing: serve index.html for all paths
 [[redirects]]
   from   = "/*"
   to     = "/index.html"
