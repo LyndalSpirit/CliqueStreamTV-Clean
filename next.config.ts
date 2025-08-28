@@ -1,33 +1,22 @@
- HEAD
-import type {NextConfig} from 'next';
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  swcMinify: true,
 
-const nextConfig: NextConfig = {
-  /* config options here */
+  // Ignore build-time type and lint errors so Netlify doesn’t fail
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
-};
 
-export default nextConfig;
-
-import type {NextConfig} from 'next';
-
-const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // Allow remote images (expand as needed)
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'picsum.photos',
+        hostname: 'picsum.photos', // example placeholder
         port: '',
         pathname: '/**',
       },
@@ -36,4 +25,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-545deeb (Working frontend of CLIQUE STREAM TV, hosted by Netlify.)
