@@ -7,11 +7,11 @@
   "scripts": {
     "dev": "next dev -p 9003",
     "build": "next build",
-    "start": "next start -p ${PORT:-3000}",
+    "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:headless": "node ./tests/run-puppeteer.js",
-    "prebuild": "node -e \"const fs=require('fs');const p='src/app/layout.tsx';const c=fs.readFileSync(p,'utf8');const h=require('crypto').createHash('sha1').update(c).digest('hex');console.log('---LAYOUT_SHA1---',h);console.log('---LAYOUT_FIRST_160---',c.slice(0,160).replace(/\\n/g,'\\\\n'));\"",
+    "prebuild": "node ./scripts/prebuild-guard.mjs",
     "postinstall": "patch-package || exit 0"
   },
   "dependencies": {
@@ -46,7 +46,7 @@
     "firebase": "^11.3.0",
     "genkit": "^1.17.1",
     "lucide-react": "^0.475.0",
-    "next": "^15.3.2",
+    "next": "^15.3.1",
     "next-themes": "^0.4.6",
     "patch-package": "^8.0.0",
     "react": "^18.3.1",
@@ -78,3 +78,4 @@
     "npm": ">=10"
   }
 }
+
