@@ -10,7 +10,6 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:headless": "node ./tests/run-puppeteer.js",
-    "prebuild": "",
     "postinstall": "patch-package || exit 0"
   },
   "dependencies": {
@@ -43,13 +42,11 @@
     "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "firebase": "^11.3.0",
-    "geist": "^1.4.2",
     "genkit": "^1.17.1",
     "lucide-react": "^0.475.0",
     "next": "^15.3.1",
     "next-themes": "^0.4.6",
     "patch-package": "^8.0.0",
-    "puppeteer": "^24.17.1",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
@@ -70,6 +67,7 @@
     "eslint-config-next": "^15.3.1",
     "genkit-cli": "^1.0.4",
     "postcss": "^8.4.35",
+    "puppeteer": "^24.17.1",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.8.3"
   },
