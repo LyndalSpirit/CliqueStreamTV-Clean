@@ -36,4 +36,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
->>>>>>> 545deeb (Working frontend of CLIQUE STREAM TV, hosted by netlify.)
+545deeb (Working frontend of CLIQUE STREAM TV, hosted by Netlify.)
