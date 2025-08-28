@@ -9,10 +9,11 @@ const TARGET_LAYOUT = path.join(REPO_ROOT, 'src', 'app', 'layout.tsx');
 
 // Directories to skip during scan
 const SKIP_DIRS = new Set([
-  'node_modules', '.git', '.next', '.vercel', 'dist', 'build', 'out', '.cache', '.turbo', '.vscode'
+  'node_modules', '.git', '.next', '.vercel', 'dist', 'build', 'out',
+  '.cache', '.turbo', '.vscode'
 ]);
 
-// File extensions considered text for scanning
+// Extensions considered text for scanning
 const TEXT_EXTS = new Set([
   '.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx',
   '.json', '.md', '.mdx', '.txt', '.yml', '.yaml', '.toml',
@@ -20,34 +21,30 @@ const TEXT_EXTS = new Set([
   '.conf', '.config', '.properties'
 ]);
 
-// Conflict marker regex (start, middle, end)
-const CONFLICT_PATTERNS = [
-  { name: 'START', re: /^\s*<{7} .*|^\s*<{7}{1,}\s*HEAD\s*$/ },
-  { name: 'MID',   re: /^\s*={7}\s*$/ },
-  { name: 'END',   re: /^\s*>{7} .*/ }
-];
+// Literal conflict markers
+const START_MARK = '<<<<<<<';
+const MID_MARK   = '=======';
+const END_MARK   = '>>>>>>>';
 
 function sha256(buf) {
   return crypto.createHash('sha256').update(buf).digest('hex');
 }
 
 function readSafe(file) {
-  try {
-    return fs.readFileSync(file);
-  } catch {
-    return null;
-  }
+  try { return fs.readFileSync(file); } catch { return null; }
 }
 
 function isTextFile(file) {
   const ext = path.extname(file).toLowerCase();
   if (TEXT_EXTS.has(ext)) return true;
-  // Heuristic: treat files <1MB with mostly printable chars as text
   const buf = readSafe(file);
   if (!buf) return false;
   if (buf.length === 0) return true;
   const sample = buf.subarray(0, Math.min(buf.length, 2048));
-  const nonPrintable = [...sample].filter(b => b === 0 || (b < 9) || (b > 13 && b < 32)).length;
+  let nonPrintable = 0;
+  for (const b of sample) {
+    if (b === 0 || b < 9 || (b > 13 && b < 32)) nonPrintable++;
+  }
   return nonPrintable / sample.length < 0.02;
 }
 
@@ -65,17 +62,20 @@ function* walk(dir) {
 
 async function scanFileForConflicts(file) {
   if (!isTextFile(file)) return [];
-  const stream = fs.createReadStream(file, 'utf8');
+  const stream = fs.createReadStream(file, { encoding: 'utf8' });
   const rl = readline.createInterface({ input: stream, crlfDelay: Infinity });
   const hits = [];
   let lineNo = 0;
-  for await (const line of rl) {
+
+  for await (const raw of rl) {
     lineNo++;
-    for (const p of CONFLICT_PATTERNS) {
-      if (p.re.test(line)) {
-        hits.push({ lineNo, kind: p.name, line: line.slice(0, 400) });
-        break;
-      }
+    const line = raw.trimStart(); // conflict markers appear at start
+    if (line.startsWith(START_MARK)) {
+      hits.push({ lineNo, kind: 'START', line: raw.slice(0, 400) });
+    } else if (line.startsWith(MID_MARK)) {
+      hits.push({ lineNo, kind: 'MID', line: raw.slice(0, 400) });
+    } else if (line.startsWith(END_MARK)) {
+      hits.push({ lineNo, kind: 'END', line: raw.slice(0, 400) });
     }
   }
   rl.close();
@@ -83,30 +83,25 @@ async function scanFileForConflicts(file) {
 }
 
 function fingerprintLayout() {
-  const info = { exists: false };
   if (!fs.existsSync(TARGET_LAYOUT)) {
-    return { ...info, message: `Missing file: ${TARGET_LAYOUT}` };
+    return { exists: false, message: `Missing file: ${TARGET_LAYOUT}` };
   }
   const buf = fs.readFileSync(TARGET_LAYOUT);
   const text = buf.toString('utf8');
-  const size = buf.length;
-  const hash = sha256(buf);
-  const startSnippet = text.slice(0, 160);
-  const endSnippet = text.slice(Math.max(0, text.length - 160));
   return {
     exists: true,
     path: TARGET_LAYOUT,
-    size,
-    sha256: hash,
-    startSnippet,
-    endSnippet
+    size: buf.length,
+    sha256: sha256(buf),
+    startSnippet: text.slice(0, 160),
+    endSnippet: text.slice(Math.max(0, text.length - 160))
   };
 }
 
 (async () => {
   console.log('🔍 Prebuild guard: fingerprinting src/app/layout.tsx and scanning for conflict markers…\n');
 
-  // 1) Fingerprint layout.tsx
+  // 1) Fingerprint layout.tsx for traceability in CI logs
   const fp = fingerprintLayout();
   if (!fp.exists) {
     console.warn(`⚠ ${fp.message}`);
@@ -129,9 +124,7 @@ function fingerprintLayout() {
   const offenders = [];
   for (const file of walk(REPO_ROOT)) {
     const hits = await scanFileForConflicts(file);
-    if (hits.length) {
-      offenders.push({ file, hits });
-    }
+    if (hits.length) offenders.push({ file, hits });
   }
 
   if (offenders.length) {
@@ -152,3 +145,4 @@ function fingerprintLayout() {
 
   console.log('✅ Prebuild guard passed: no conflict markers found.\n');
 })();
+
