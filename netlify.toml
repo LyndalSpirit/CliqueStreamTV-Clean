@@ -1,12 +1,18 @@
 [build]
+  # Build Next.js app
   command = "npm run build"
   publish = ".next"
 
 [build.environment]
-  NODE_VERSION = "20"
+  NODE_VERSION = "20.17.0"
   NPM_FLAGS = ""
   NEXT_TELEMETRY_DISABLED = "1"
 
 [[plugins]]
+  # Netlify official Next.js plugin (handles routing, SSR, etc.)
   package = "@netlify/plugin-nextjs"
 
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
