@@ -1,16 +1,16 @@
-<<<<<<< HEAD
-# CliqueStreamTV- Revive
 
-## Project Overview
+ CliqueStreamTV- Revive
 
-CliqueStream is a Next.js starter project designed to provide a foundation for building a modern streaming service. It leverages the Next.js App Router for improved performance and maintainability, Server Components for reduced client-side JavaScript, and ShadCN UI components for a consistent and professional user interface. The application also includes GenAI features implemented using Genkit, providing AI-powered functionalities like script generation and image creation.
+ Project Overview
 
-## Project Structure
+CliqueStream is a Next.js starter project designed to provide a foundation for building a modern streaming service. It leverages the Next.js App Router for improved performance and maintainability, Server Components for reduced client-side JavaScript, and ShadCN UI components for a consistent and professional user interface. The application also includes GenAI features implemented using Genkit, offering AI-powered functionalities such as script generation and image creation.
+
+ Project Structure
 
 The project is structured as follows:
 
 -   `.env`: Environment variables (currently empty, but can be used for API keys, etc.).
--   `README.md`: This file, providing an overview of the project.
+-   `README.md`: This file provides an overview of the project.
 -   `components.json`: Configuration file for ShadCN UI components.
 -   `next.config.ts`: Next.js configuration file.
 -   `package.json`: Node.js package manifest, containing dependencies and scripts.
@@ -45,40 +45,40 @@ The project is structured as follows:
     -   `tailwind.config.ts`: Tailwind CSS configuration file.
     -   `tsconfig.json`: TypeScript configuration file.
 
-## UI Styling
+ UI Styling
 
 The UI styling of CliqueStream is based on ShadCN UI components and Tailwind CSS. To customize the appearance of the application, follow these guidelines:
 
-### Modifying the Color Scheme
+ Modifying the Color Scheme
 
 1.  **Edit `src/app/globals.css`**: This file contains the Tailwind CSS configuration and custom styles, including the color scheme defined using HSL CSS variables.
 2.  **Update HSL Variables**: Modify the `--background`, `--foreground`, `--primary`, `--secondary`, `--accent`, and other color variables to match your desired color palette.
 3.  **Avoid Overriding Tailwind Colors**: Instead of using inline styles or custom CSS classes that override Tailwind's default colors (e.g., `text-red-500`), rely on the theme generated in `globals.css` to maintain consistency.
 
-### Using ShadCN UI Components
+ Using ShadCN UI Components
 
 -   **Import Components**: Import ShadCN UI components from the `@/components/ui` directory.
 -   **Customize Components**: Use Tailwind CSS classes to customize the appearance of ShadCN UI components.
 -   **Maintain Consistency**: Follow the existing styling conventions to ensure a consistent look and feel throughout the application.
 
-## GenAI Features
+ GenAI Features
 
 CliqueStream incorporates AI-powered features using Genkit. The AI-related code is located in the `src/ai` directory.
 
-### Understanding Genkit Flows
+ Understanding Genkit Flows
 
 -   **Flows**: Genkit flows are defined in the `src/ai/flows` directory. Each flow represents a specific AI task, such as generating a thumbnail image or creating a video script.
 -   **Prompts**: Flows typically wrap a call to a Large Language Model (LLM) using Genkit prompts. Prompts are defined in the `src/ai/flows` directory and contain instructions for the LLM.
 -   **Schemas**: Each flow and prompt has an input and output schema defined using Zod. The schemas specify the data types and descriptions for the input and output parameters.
 
-### Modifying GenAI Functionality
+ Modifying GenAI Functionality
 
 1.  **Edit Flow Files**: Modify the flow files in the `src/ai/flows` directory to customize the AI functionalities.
 2.  **Update Prompts**: Adjust the prompts to change the behavior of the LLM. Use Handlebars templating to dynamically insert data into the prompts.
 3.  **Modify Schemas**: Update the input and output schemas to match the new data requirements.
 4.  **Register Changes**: Ensure that all Genkit flows are imported in `src/ai/dev.ts` so that Genkit recognizes the changes.
 
-### Example: Modifying the `generate-thumbnail-image.ts` Flow
+ Example: Modifying the `generate-thumbnail-image.ts` Flow
 
 To modify the `generate-thumbnail-image.ts` flow, follow these steps:
 
