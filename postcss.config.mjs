@@ -1,18 +1,9 @@
-/** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
-  },
-};
-
-export default config;
+import tailwind from '@tailwindcss/postcss'
+import autoprefixer from 'autoprefixer'
 
 /** @type {import('postcss-load-config').Config} */
-const config = {
-  plugins: {
-    tailwindcss: {},
-  },
-};
+const postcssConfig = {
+  plugins: [tailwind(), autoprefixer()],
+}
 
-export default config;
- 545deeb (Working frontend of CLIQUE STREAM TV, hosted by netlify.)
+export default postcssConfig
