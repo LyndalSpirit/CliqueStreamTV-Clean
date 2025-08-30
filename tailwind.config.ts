@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -93,7 +93,7 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-=======
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -188,4 +188,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
->>>>>>> 545deeb (Working frontend of CLIQUE STREAM TV, hosted by netlify.)
+ 545deeb (Working frontend of CLIQUE STREAM TV, hosted by netlify.)
