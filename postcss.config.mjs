@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
@@ -7,7 +6,7 @@ const config = {
 };
 
 export default config;
-=======
+
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
@@ -16,4 +15,4 @@ const config = {
 };
 
 export default config;
->>>>>>> 545deeb (Working frontend of CLIQUE STREAM TV, hosted by netlify.)
+ 545deeb (Working frontend of CLIQUE STREAM TV, hosted by netlify.)
