@@ -1,20 +1,23 @@
 // next.config.ts
-import type { NextConfig } from 'next';
+import type { NextConfig } from 'next'
+import webpack from 'webpack'
 
 const nextConfig: NextConfig = {
-  // Keep the pipeline moving during stabilization; re-enable strict checks later.
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
-
-  // Allow remote images your UI needs (add hosts as you integrate).
+  reactStrictMode: true,
   images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },
-      // { protocol: 'https', hostname: 'your-cdn.example.com', pathname: '/**' },
-    ],
+    unoptimized: true,
+    remotePatterns: [{ protocol: 'https', hostname: 'picsum.photos' }],
   },
+  webpack: (config) => {
+    // If anything tries to import these, ignore them in the client bundle
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^(handlebars|dotprompt|genkit|@genkit-ai\/core)$/,
+      })
+    )
+    return config
+  },
+}
 
-  // NOTE: Do NOT add `swcMinify`. It was removed in Next 15 and is always on.
-};
+export default nextConfig
 
-export default nextConfig;
