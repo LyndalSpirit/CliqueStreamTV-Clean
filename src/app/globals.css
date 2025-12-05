@@ -7,23 +7,32 @@
     /* Default (brand) */
     --background: 0 0% 7%;
     --foreground: 0 0% 92%;
+
     --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
+
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
+
     --primary: 51 100% 50%;
     --primary-foreground: 222.2 84% 4.9%;
+
     --secondary: 0 0% 16%;
     --secondary-foreground: 0 0% 98%;
+
     --muted: 0 0% 16%;
     --muted-foreground: 0 0% 63.9%;
+
     --accent: 45 100% 50%;
     --accent-foreground: 0 0% 9%;
+
     --destructive: 0 72% 41%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 0 0% 18%;
     --input: 0 0% 18%;
     --ring: 217.2 91.2% 59.8%;
+
     --radius: 0.5rem;
 
     /* charts / sidebar */
@@ -32,6 +41,7 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
     --sidebar-background: 0 0% 10%;
     --sidebar-foreground: 0 0% 92%;
     --sidebar-primary: 240 5.9% 10%;
@@ -42,30 +52,39 @@
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
-  [data-theme="light"] {
+  [data-theme='light'] {
     --background: 0 0% 98%;
     --foreground: 0 0% 10%;
+
     --card: 0 0% 100%;
     --card-foreground: 0 0% 10%;
+
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
+
     --primary: 210 100% 50%;
     --primary-foreground: 0 0% 10%;
+
     --secondary: 0 0% 96%;
     --secondary-foreground: 0 0% 9%;
+
     --muted: 0 0% 96%;
     --muted-foreground: 0 0% 45%;
+
     --accent: 45 100% 50%;
     --accent-foreground: 0 0% 9%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
+
     --border: 0 0% 90%;
     --input: 0 0% 90%;
     --ring: 210 100% 50%;
   }
 
   /* optional themes */
-  [data-theme="purple-haze"] {
+
+  [data-theme='purple-haze'] {
     --background: 270 40% 15%;
     --foreground: 0 0% 95%;
     --card: 270 40% 20%;
@@ -78,7 +97,7 @@
     --ring: 300 80% 50%;
   }
 
-  [data-theme="sunset"] {
+  [data-theme='sunset'] {
     --background: 30 20% 15%;
     --foreground: 60 10% 90%;
     --card: 30 20% 20%;
@@ -94,10 +113,6 @@
   * {
     @apply border-border;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
 
   body {
     @apply bg-background text-foreground;
