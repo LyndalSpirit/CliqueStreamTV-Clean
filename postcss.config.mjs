@@ -1,10 +1,9 @@
 // postcss.config.mjs
-import tailwind from '@tailwindcss/postcss'
-import autoprefixer from 'autoprefixer'
+// Simple, Next/Tailwind v3-compatible PostCSS config
 
-/** @type {import('postcss-load-config').Config} */
-const postcssConfig = {
-  plugins: [tailwind(), autoprefixer()],
-}
-
-export default postcssConfig
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+};
