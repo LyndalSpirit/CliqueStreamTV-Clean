@@ -110,7 +110,9 @@
     --ring: 45 90% 50%;
   }
 
-  * {
+  *,
+  *::before,
+  *::after {
     @apply border-border;
   }
 
@@ -118,4 +120,3 @@
     @apply bg-background text-foreground;
   }
 }
-
