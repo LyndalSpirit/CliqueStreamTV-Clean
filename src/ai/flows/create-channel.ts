@@ -78,13 +78,24 @@ async function handleCreateChannel(
 }
 
 // -----------------------------
-// Flow-like export
+// Public API
 // -----------------------------
 
 /**
- * We mimic the original "flow" object so existing code can:
- *   - call createChannelFlow(input)
- *   - or call createChannelFlow.run(input)
+ * Simple function API:
+ *   import { createChannel } from '@/ai/flows/create-channel';
+ *   await createChannel(input)
+ */
+export async function createChannel(
+  input: CreateChannelInput
+): Promise<CreateChannelOutput> {
+  return handleCreateChannel(input);
+}
+
+/**
+ * Flow-like export (mimics old Genkit style):
+ *   - createChannelFlow(input)
+ *   - createChannelFlow.run(input)
  */
 export const createChannelFlow = Object.assign(
   async (input: CreateChannelInput): Promise<CreateChannelOutput> =>
