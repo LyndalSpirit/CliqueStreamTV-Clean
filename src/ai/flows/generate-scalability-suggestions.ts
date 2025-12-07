@@ -1,69 +1,95 @@
-'use server';
-/**
- * @fileOverview An AI agent that generates scalability suggestions for the app.
- *
- * - generateScalabilitySuggestions - A function that handles the generation of scalability suggestions.
- * - GenerateScalabilitySuggestionsInput - The input type for the generateScalabilitySuggestions function.
- * - GenerateScalabilitySuggestionsOutput - The return type for the generateScalabilitySuggestions function.
- */
+// src/ai/flows/generate-scalability-suggestions.ts
 
-import {ai} from '@/ai/ai-instance';
-import {z} from 'genkit';
+import { z } from 'zod';
+import { generateText } from '../ai-instance';
 
-const GenerateScalabilitySuggestionsInputSchema = z.object({
-  appDescription: z.string().describe('A description of the app\'s architecture and backend structure.'),
+// -----------------------------
+// Zod schemas
+// -----------------------------
+
+export const GenerateScalabilitySuggestionsInputSchema = z.object({
+  currentStack: z.string().optional(),
+  currentTraffic: z.string().optional(),
+  bottlenecks: z.string().optional(),
+  goals: z.string().optional(),
+  constraints: z.string().optional(),
 });
-export type GenerateScalabilitySuggestionsInput = z.infer<typeof GenerateScalabilitySuggestionsInputSchema>;
 
-const GenerateScalabilitySuggestionsOutputSchema = z.object({
-  suggestions: z.string().describe('A list of suggestions for improving the app\'s scalability to handle 50+ million users.'),
+export const GenerateScalabilitySuggestionsOutputSchema = z.object({
+  overview: z.string(),
+  steps: z.array(z.string()),
 });
-export type GenerateScalabilitySuggestionsOutput = z.infer<typeof GenerateScalabilitySuggestionsOutputSchema>;
 
-export async function generateScalabilitySuggestions(input: GenerateScalabilitySuggestionsInput): Promise<GenerateScalabilitySuggestionsOutput> {
-  return generateScalabilitySuggestionsFlow(input);
+export type GenerateScalabilitySuggestionsInput = z.infer<
+  typeof GenerateScalabilitySuggestionsInputSchema
+>;
+export type GenerateScalabilitySuggestionsOutput = z.infer<
+  typeof GenerateScalabilitySuggestionsOutputSchema
+>;
+
+// -----------------------------
+// Internal handler
+// -----------------------------
+
+async function handleGenerateScalabilitySuggestions(
+  input: GenerateScalabilitySuggestionsInput
+): Promise<GenerateScalabilitySuggestionsOutput> {
+  const { currentStack, currentTraffic, bottlenecks, goals, constraints } =
+    input;
+
+  const prompt = [
+    'You are an expert cloud architect and streaming-platform engineer.',
+    'Generate concise, actionable scalability recommendations for a video streaming platform.',
+    '',
+    currentStack ? `Current stack: ${currentStack}` : '',
+    currentTraffic ? `Current traffic: ${currentTraffic}` : '',
+    bottlenecks ? `Known bottlenecks: ${bottlenecks}` : '',
+    goals ? `Scaling goals: ${goals}` : '',
+    constraints ? `Constraints (budget, tools, etc.): ${constraints}` : '',
+    '',
+    'Return a short overview and then a numbered list of concrete steps.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+
+  const raw = await generateText(
+    prompt,
+    'local/scalability-suggestions'
+  );
+
+  const [firstLine, ...rest] = raw.split('\n').map((l) => l.trim());
+  const overview =
+    firstLine && firstLine.length > 0
+      ? firstLine
+      : 'Scalability recommendations for the current platform.';
+  const steps = rest.filter((line) => line.length > 0);
+
+  return {
+    overview,
+    steps: steps.length ? steps : ['Review current architecture and traffic patterns.'],
+  };
 }
 
-const prompt = ai.definePrompt({
-  name: 'generateScalabilitySuggestionsPrompt',
-  input: {
-    schema: z.object({
-      appDescription: z.string().describe('A description of the app\'s architecture and backend structure.'),
-    }),
-  },
-  output: {
-    schema: z.object({
-      suggestions: z.string().describe('A list of suggestions for improving the app\'s scalability to handle 50+ million users.'),
-    }),
-  },
-  prompt: `You are an expert in designing scalable web applications. Given the following description of an application's architecture, generate a list of concrete suggestions for improving its scalability to handle 50+ million users.
+// -----------------------------
+// Public API
+// -----------------------------
 
-App Description: {{{appDescription}}}
+/**
+ * Main function used by the rest of the app.
+ * Keeps a single exported symbol with this name (no duplicates).
+ */
+export async function generateScalabilitySuggestions(
+  input: GenerateScalabilitySuggestionsInput
+): Promise<GenerateScalabilitySuggestionsOutput> {
+  return handleGenerateScalabilitySuggestions(input);
+}
 
-Consider suggesting improvements to the following areas:
+/**
+ * Optional flow-style wrapper, in case anything expects `.run()`.
+ * Note: different name -> no export collision.
+ */
+export const generateScalabilitySuggestionsFlow = {
+  run: generateScalabilitySuggestions,
+};
 
-- Database architecture (e.g., sharding, replication)
-- Caching strategies (e.g., CDN, in-memory caching)
-- Load balancing
-- Microservices architecture
-- Asynchronous task processing
-- Code optimization
-
-The app supports users creating up to 7 channels each.
-`,
-});
-
-const generateScalabilitySuggestionsFlow = ai.defineFlow<
-  typeof GenerateScalabilitySuggestionsInputSchema,
-  typeof GenerateScalabilitySuggestionsOutputSchema
->({
-  name: 'generateScalabilitySuggestionsFlow',
-  inputSchema: GenerateScalabilitySuggestionsInputSchema,
-  outputSchema: GenerateScalabilitySuggestionsOutputSchema,
-},
-async input => {
-  const {output} = await prompt(input);
-  return output!;
-});
-
-export {generateScalabilitySuggestions};
+export default generateScalabilitySuggestions;
