@@ -57,7 +57,8 @@ export default function AIContentCreatorPage() {
 
       const result = await generateVideoThumbnail({
         title: trimmedPrompt || 'Untitled video',
-        description: trimmedScript || trimmedPrompt || 'No description provided',
+        description:
+          trimmedScript || trimmedPrompt || 'No description provided',
         platform: 'YouTube',
         mood: 'cinematic',
         style: 'lo-fi digital art',
@@ -65,7 +66,7 @@ export default function AIContentCreatorPage() {
         tags: ['clique stream tv', 'ai content', 'thumbnail'],
       });
 
-      // Our flow returns { prompt: string }
+      // Flow returns { prompt: string }
       setThumbnailPrompt(result.prompt ?? '');
     } catch (err: unknown) {
       console.error('Error generating thumbnail prompt:', err);
@@ -137,7 +138,8 @@ export default function AIContentCreatorPage() {
             <div className="space-y-1">
               <h2 className="text-lg font-semibold">Thumbnail prompt</h2>
               <p className="text-xs text-muted-foreground">
-                Uses your concept + script to build a detailed prompt for your image generator.
+                Uses your concept + script to build a detailed prompt for your image
+                generator.
               </p>
             </div>
             <button
