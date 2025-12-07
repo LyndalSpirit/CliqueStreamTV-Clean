@@ -1,26 +1,18 @@
 // next.config.ts
-import type { NextConfig } from 'next'
-import webpack from 'webpack'
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  images: {
-    unoptimized: true,
-    remotePatterns: [{ protocol: 'https', hostname: 'picsum.photos' }],
-  },
+
+  // If you need custom webpack tweaks, put them here:
   webpack: (config) => {
-    // If anything tries to import these, ignore them in the client bundle
-    config.plugins.push(
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^(handlebars|dotprompt|genkit|@genkit-ai\/core)$/,
-      })
-    )
-    return config
+    // Example: leave it unchanged for now
+    return config;
   },
-}
 
-export default nextConfig
+  // (Optional) Later we can add:
+  // outputFileTracingRoot: __dirname,
+  // if you want to silence the workspace-root warning cleanly.
+};
 
-
-export default nextConfig
-
+export default nextConfig;
