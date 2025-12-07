@@ -4,12 +4,12 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
-  // Optional: this can clean up tracing warnings later if needed
+  // Optional: you can uncomment this later to quiet some tracing/root warnings
   // outputFileTracingRoot: __dirname,
 
   webpack: (config, { isServer }) => {
-    // For client-side bundles, tell Webpack not to try to polyfill
-    // Node core modules used by gRPC / OpenTelemetry / Genkit.
+    // For client-side bundles, avoid trying to bundle Node core modules
+    // that libraries like gRPC / OpenTelemetry / Genkit use.
     if (!isServer) {
       config.resolve = config.resolve || {};
       config.resolve.fallback = {
@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
         net: false,
         http2: false,
         dns: false,
+        fs: false,
+        dgram: false,
+        async_hooks: false,
       };
     }
 
@@ -26,4 +29,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
