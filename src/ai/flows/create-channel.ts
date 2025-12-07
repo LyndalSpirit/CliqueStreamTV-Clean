@@ -1,7 +1,7 @@
 // src/ai/flows/create-channel.ts
 
 import { z } from 'zod';
-import { ai } from '../ai-instance';
+import { generateText } from '../ai-instance';
 
 // -----------------------------
 // Zod schemas
@@ -30,77 +30,70 @@ export type CreateChannelInput = z.infer<typeof CreateChannelInputSchema>;
 export type CreateChannelOutput = z.infer<typeof CreateChannelOutputSchema>;
 
 // -----------------------------
-// Flow definition
+// Internal handler
 // -----------------------------
 
-// NOTE:
-// We intentionally treat ai as `any` here so TypeScript
-// doesn’t fight us about Genkit’s changing types.
-// That’s why there are no `<Type, Type>` generics on defineFlow.
-export const createChannelFlow = (ai as any).defineFlow({
-  name: 'createChannel',
-  inputSchema: CreateChannelInputSchema,
-  outputSchema: CreateChannelOutputSchema,
+async function handleCreateChannel(
+  input: CreateChannelInput
+): Promise<CreateChannelOutput> {
+  const { name, description, category, visibility, tags } = input;
 
-  // This is the function that runs when the flow is invoked.
-  async run(input: CreateChannelInput): Promise<CreateChannelOutput> {
-    const {
-      name,
-      description,
-      category,
-      visibility,
-      tags,
-    } = input;
+  let finalDescription = description?.trim() ?? '';
 
-    // If description is missing, we’ll have the AI draft one.
-    let finalDescription = description?.trim() ?? '';
+  // If description is missing, let our local AI stub suggest one.
+  if (!finalDescription) {
+    try {
+      const prompt = [
+        'You are helping a creator set up a new channel on a streaming platform called CLIQUE Stream TV.',
+        'Write a short, polished channel description in 2–3 sentences.',
+        `Channel name: ${name}`,
+        category ? `Category: ${category}` : '',
+        tags && tags.length ? `Tags: ${tags.join(', ')}` : '',
+      ]
+        .filter(Boolean)
+        .join('\n');
 
-    if (!finalDescription) {
-      try {
-        const prompt = [
-          'You are helping a creator set up a new channel on a streaming platform called CLIQUE Stream TV.',
-          'Write a short, polished channel description in 2–3 sentences.',
-          `Channel name: ${name}`,
-          category ? `Category: ${category}` : '',
-          tags && tags.length ? `Tags: ${tags.join(', ')}` : '',
-        ]
-          .filter(Boolean)
-          .join('\n');
-
-        const res: any = await (ai as any).generate({
-          model: 'googleai/gemini-1.5-pro',
-          prompt,
-        } as any);
-
-        const text = res?.text;
-        if (typeof text === 'function') {
-          finalDescription = await text();
-        } else if (typeof text === 'string') {
-          finalDescription = text;
-        } else {
-          finalDescription = String(text ?? '');
-        }
-      } catch {
-        // Fallback if AI call fails — keep it simple.
-        finalDescription = description ?? '';
-      }
+      finalDescription = await generateText(
+        prompt,
+        'local/channel-description'
+      );
+    } catch {
+      // If even the stub fails, just fall back to empty / provided description.
+      finalDescription = description ?? '';
     }
+  }
 
-    // In a real app this is where you'd:
-    // - write to Firestore / database
-    // - generate a real channelId
-    // For now we just echo back structured data.
-    return {
-      name,
-      description: finalDescription,
-      category,
-      visibility,
-      tags: tags ?? [],
-      channelId: '',
-    };
-  },
-});
+  // In a real backend, you would:
+  // - Save this to a database
+  // - Generate a real channelId
+  // For now we just return a structured object.
+  return {
+    name,
+    description: finalDescription,
+    category,
+    visibility,
+    tags: tags ?? [],
+    channelId: '',
+  };
+}
 
-// Export default as well, in case other code imports it that way.
+// -----------------------------
+// Flow-like export
+// -----------------------------
+
+/**
+ * We mimic the original "flow" object so existing code can:
+ *   - call createChannelFlow(input)
+ *   - or call createChannelFlow.run(input)
+ */
+export const createChannelFlow = Object.assign(
+  async (input: CreateChannelInput): Promise<CreateChannelOutput> =>
+    handleCreateChannel(input),
+  {
+    run: async (
+      input: CreateChannelInput
+    ): Promise<CreateChannelOutput> => handleCreateChannel(input),
+  }
+);
+
 export default createChannelFlow;
-
