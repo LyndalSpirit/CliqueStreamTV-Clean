@@ -1,12 +1,12 @@
 // src/ai/ai-instance.ts
 
-import { createAI } from '@genkit-ai/next';
+import createAI from '@genkit-ai/next';
 import { googleAI } from '@genkit-ai/google-genai';
 
 // Main AI instance used by the app
 export const ai = createAI({
   plugins: [googleAI()],
-  // You can add config here later if needed
+  // You can extend config here later if needed.
 });
 
 // Optional helper to generate text from a model.
@@ -32,6 +32,7 @@ export async function generateText(
   // Fallback: stringify whatever came back
   return String(text ?? '');
 }
+
 
 
 
