@@ -1,21 +1,21 @@
 // src/ai/ai-instance.ts
 
-import createAI from '@genkit-ai/next';
+import { genkit } from 'genkit';
 import { googleAI } from '@genkit-ai/google-genai';
 
-// Main AI instance used by the app
-export const ai = createAI({
+// Main AI instance used by the app.
+// We use `as any` to avoid brittle type issues across Genkit versions.
+export const ai: any = genkit({
   plugins: [googleAI()],
-  // You can extend config here later if needed.
-});
+} as any);
 
 // Optional helper to generate text from a model.
-// Uses `any` in a controlled way instead of @ts-expect-error.
+// Keeps things typed at the edges and loose in the middle.
 export async function generateText(
   prompt: string,
   model = 'googleai/gemini-1.5-pro'
 ): Promise<string> {
-  // Genkit's types can vary a bit by version, so we cast lightly here
+  // Genkit's return shape can vary slightly, so we treat it as `any`.
   const res: any = await ai.generate({ model, prompt } as any);
 
   const text = res?.text;
@@ -32,6 +32,7 @@ export async function generateText(
   // Fallback: stringify whatever came back
   return String(text ?? '');
 }
+
 
 
 
