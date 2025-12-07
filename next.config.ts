@@ -1,42 +1,18 @@
 // next.config.ts
-import type { NextConfig } from 'next';
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   reactStrictMode: true,
 
-  // You *can* add this later if you want to silence the workspace-root warning:
-  // outputFileTracingRoot: __dirname,
-
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve = config.resolve || {};
-
-      // Tell Webpack not to try to bundle these Node core modules
-      config.resolve.fallback = {
-        ...(config.resolve.fallback || {}),
-        tls: false,
-        net: false,
-        http2: false,
-        dns: false,
-        fs: false,
-        dgram: false,
-        async_hooks: false,
-        child_process: false,
-        buffer: false,
-        events: false,
-      };
-
-      // Handle the new "node:"-prefixed imports too (node:async_hooks, node:buffer, node:events)
-      config.resolve.alias = {
-        ...(config.resolve.alias || {}),
-        'node:async_hooks': false,
-        'node:buffer': false,
-        'node:events': false,
-      };
-    }
-
-    return config;
+  // Turbopack config (empty is fine; it just silences the error)
+  turbopack: {
+    // Optional: if you want to quiet the "workspace root" warning,
+    // you can uncomment this line so Turbopack knows the real root:
+    // root: __dirname,
   },
+
+  // typedRoutes used to live under experimental.typedRoutes
+  // in older versions of Next. As of v16, it's top-level.
+  typedRoutes: true,
 };
 
 export default nextConfig;
