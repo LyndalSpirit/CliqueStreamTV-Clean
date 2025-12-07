@@ -25,7 +25,6 @@ export default function AIContentCreatorPage() {
 
       const result = await generateScriptFromPrompt({
         prompt: promptInput,
-        // You can tune these defaults later or expose them as UI controls
         tone: 'neutral',
         durationMinutes: 5,
       });
@@ -34,7 +33,7 @@ export default function AIContentCreatorPage() {
     } catch (err: unknown) {
       console.error('Error generating script:', err);
       setScriptError(
-        err instanceof Error ? err.message : 'Failed to generate script.'
+        err instanceof Error ? err.message : 'Failed to generate script.',
       );
     } finally {
       setIsGeneratingScript(false);
@@ -51,7 +50,6 @@ export default function AIContentCreatorPage() {
       }
 
       const result = await generateVideoThumbnail({
-        // Use the prompt as a rough title if you don’t have a dedicated title yet
         title: promptInput.trim() || 'Untitled video',
         description: scriptOutput.trim() || promptInput.trim(),
         platform: 'YouTube',
@@ -68,7 +66,7 @@ export default function AIContentCreatorPage() {
       setThumbnailError(
         err instanceof Error
           ? err.message
-          : 'Failed to generate thumbnail prompt.'
+          : 'Failed to generate thumbnail prompt.',
       );
     } finally {
       setIsGeneratingThumbnail(false);
