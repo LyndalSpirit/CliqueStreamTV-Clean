@@ -1,39 +1,57 @@
 // src/ai/ai-instance.ts
 
-import { genkit } from 'genkit';
-import { googleAI } from '@genkit-ai/google-genai';
+/**
+ * Lightweight local AI stub to keep the frontend build clean.
+ * This avoids pulling in Genkit/gRPC/Google-auth and all the Node-only modules
+ * that were breaking the Next.js browser build.
+ *
+ * Later, we can rewire this to call a serverless function or backend API.
+ */
 
-// Main AI instance used by the app.
-// We use `as any` to avoid brittle type issues across Genkit versions.
-export const ai: any = genkit({
-  plugins: [googleAI()],
-} as any);
+export interface GenerateParams {
+  model?: string;
+  prompt: string;
+}
 
-// Optional helper to generate text from a model.
-// Keeps things typed at the edges and loose in the middle.
+/**
+ * Simple placeholder "AI" object with a generate() method that mimics
+ * the interface we used before, but without any external dependencies.
+ */
+export const ai = {
+  async generate({ model, prompt }: GenerateParams) {
+    const text = () =>
+      [
+        'AI placeholder response (local stub).',
+        '',
+        `Model: ${model ?? 'local/placeholder'}`,
+        '',
+        'Prompt:',
+        prompt,
+      ].join('\n');
+
+    return { text };
+  },
+};
+
+/**
+ * Helper to generate plain text. This mirrors the previous generateText helper
+ * but uses the local stub instead of Genkit/Google AI.
+ */
 export async function generateText(
   prompt: string,
-  model = 'googleai/gemini-1.5-pro'
+  model = 'local/placeholder'
 ): Promise<string> {
-  // Genkit's return shape can vary slightly, so we treat it as `any`.
-  const res: any = await ai.generate({ model, prompt } as any);
+  const res: any = await ai.generate({ model, prompt });
 
   const text = res?.text;
 
   if (typeof text === 'function') {
-    // Some versions expose text() as a function
-    return text();
+    return await text();
   }
 
   if (typeof text === 'string') {
     return text;
   }
 
-  // Fallback: stringify whatever came back
   return String(text ?? '');
 }
-
-
-
-
-
