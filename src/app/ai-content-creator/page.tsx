@@ -8,8 +8,10 @@ export default function AIContentCreatorPage() {
   const [promptInput, setPromptInput] = useState('');
   const [scriptOutput, setScriptOutput] = useState('');
   const [thumbnailPrompt, setThumbnailPrompt] = useState('');
+
   const [isGeneratingScript, setIsGeneratingScript] = useState(false);
   const [isGeneratingThumbnail, setIsGeneratingThumbnail] = useState(false);
+
   const [scriptError, setScriptError] = useState<string | null>(null);
   const [thumbnailError, setThumbnailError] = useState<string | null>(null);
 
@@ -19,12 +21,13 @@ export default function AIContentCreatorPage() {
     setIsGeneratingScript(true);
 
     try {
-      if (!promptInput.trim()) {
+      const trimmed = promptInput.trim();
+      if (!trimmed) {
         throw new Error('Please enter a prompt first.');
       }
 
       const result = await generateScriptFromPrompt({
-        prompt: promptInput,
+        prompt: trimmed,
         tone: 'neutral',
         durationMinutes: 5,
       });
@@ -45,13 +48,16 @@ export default function AIContentCreatorPage() {
     setIsGeneratingThumbnail(true);
 
     try {
-      if (!promptInput.trim() && !scriptOutput.trim()) {
+      const trimmedPrompt = promptInput.trim();
+      const trimmedScript = scriptOutput.trim();
+
+      if (!trimmedPrompt && !trimmedScript) {
         throw new Error('Enter a prompt or generate a script first.');
       }
 
       const result = await generateVideoThumbnail({
-        title: promptInput.trim() || 'Untitled video',
-        description: scriptOutput.trim() || promptInput.trim(),
+        title: trimmedPrompt || 'Untitled video',
+        description: trimmedScript || trimmedPrompt || 'No description provided',
         platform: 'YouTube',
         mood: 'cinematic',
         style: 'lo-fi digital art',
@@ -76,17 +82,17 @@ export default function AIContentCreatorPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center px-4 py-8">
       <div className="w-full max-w-4xl space-y-8">
+        {/* Header */}
         <header className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">
             AI Content Creator
           </h1>
           <p className="text-sm text-muted-foreground">
-            Type a video idea once. Get a structured script and a ready-to-use
-            image prompt for your thumbnail.
+            One idea in — get a structured script and a thumbnail prompt out.
           </p>
         </header>
 
-        {/* Prompt input + script generator */}
+        {/* Prompt + Script Generator */}
         <section className="rounded-xl border border-border bg-card p-4 md:p-6 space-y-4">
           <form onSubmit={handleGenerateScript} className="space-y-4">
             <div className="space-y-2">
@@ -97,7 +103,7 @@ export default function AIContentCreatorPage() {
                 className="w-full min-h-[120px] rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
                 value={promptInput}
                 onChange={(e) => setPromptInput(e.target.value)}
-                placeholder="Describe your video idea, target audience, and any key beats you want the script to hit…"
+                placeholder="Describe your video idea, who it’s for, and what you want it to cover…"
               />
             </div>
 
@@ -125,14 +131,13 @@ export default function AIContentCreatorPage() {
           </div>
         </section>
 
-        {/* Thumbnail prompt generator */}
+        {/* Thumbnail Prompt Generator */}
         <section className="rounded-xl border border-border bg-card p-4 md:p-6 space-y-4">
           <div className="flex items-center justify-between gap-2">
             <div className="space-y-1">
               <h2 className="text-lg font-semibold">Thumbnail prompt</h2>
               <p className="text-xs text-muted-foreground">
-                Uses your concept and script to create a detailed prompt for an
-                AI image generator.
+                Uses your concept + script to build a detailed prompt for your image generator.
               </p>
             </div>
             <button
@@ -141,9 +146,7 @@ export default function AIContentCreatorPage() {
               disabled={isGeneratingThumbnail}
               className="inline-flex items-center rounded-md border border-border bg-secondary px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:opacity-90 disabled:opacity-50"
             >
-              {isGeneratingThumbnail
-                ? 'Generating…'
-                : 'Generate thumbnail prompt'}
+              {isGeneratingThumbnail ? 'Generating…' : 'Generate prompt'}
             </button>
           </div>
 
@@ -155,7 +158,7 @@ export default function AIContentCreatorPage() {
             className="w-full min-h-[160px] rounded-md border border-border bg-background px-3 py-2 text-sm"
             value={thumbnailPrompt}
             onChange={(e) => setThumbnailPrompt(e.target.value)}
-            placeholder="Your thumbnail AI prompt will appear here. Copy this into your image generator (Pika, Flux, etc.)."
+            placeholder="Your thumbnail AI prompt will appear here. Copy this into Pika, Flux, etc."
           />
         </section>
       </div>
