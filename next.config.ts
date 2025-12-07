@@ -4,15 +4,26 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
-  // If you need custom webpack tweaks, put them here:
-  webpack: (config) => {
-    // Example: leave it unchanged for now
+  // Optional: this can clean up tracing warnings later if needed
+  // outputFileTracingRoot: __dirname,
+
+  webpack: (config, { isServer }) => {
+    // For client-side bundles, tell Webpack not to try to polyfill
+    // Node core modules used by gRPC / OpenTelemetry / Genkit.
+    if (!isServer) {
+      config.resolve = config.resolve || {};
+      config.resolve.fallback = {
+        ...(config.resolve.fallback || {}),
+        tls: false,
+        net: false,
+        http2: false,
+        dns: false,
+      };
+    }
+
     return config;
   },
-
-  // (Optional) Later we can add:
-  // outputFileTracingRoot: __dirname,
-  // if you want to silence the workspace-root warning cleanly.
 };
 
 export default nextConfig;
+
