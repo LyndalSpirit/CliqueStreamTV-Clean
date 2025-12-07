@@ -4,14 +4,14 @@ import type { NextConfig } from 'next';
 const nextConfig: NextConfig = {
   reactStrictMode: true,
 
-  // Optional: you can uncomment this later to quiet some tracing/root warnings
+  // You *can* add this later if you want to silence the workspace-root warning:
   // outputFileTracingRoot: __dirname,
 
   webpack: (config, { isServer }) => {
-    // For client-side bundles, avoid trying to bundle Node core modules
-    // that libraries like gRPC / OpenTelemetry / Genkit use.
     if (!isServer) {
       config.resolve = config.resolve || {};
+
+      // Tell Webpack not to try to bundle these Node core modules
       config.resolve.fallback = {
         ...(config.resolve.fallback || {}),
         tls: false,
@@ -21,6 +21,17 @@ const nextConfig: NextConfig = {
         fs: false,
         dgram: false,
         async_hooks: false,
+        child_process: false,
+        buffer: false,
+        events: false,
+      };
+
+      // Handle the new "node:"-prefixed imports too (node:async_hooks, node:buffer, node:events)
+      config.resolve.alias = {
+        ...(config.resolve.alias || {}),
+        'node:async_hooks': false,
+        'node:buffer': false,
+        'node:events': false,
       };
     }
 
