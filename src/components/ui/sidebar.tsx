@@ -1,6 +1,4 @@
-// src/components/layout/Sidebar.tsx
-// 01
-import React from "react";
+// src/components/ui/sidebar.tsx
 import {
   Home,
   Flame,
@@ -11,7 +9,6 @@ import {
   Video,
 } from "lucide-react";
 
-// 09
 const primaryNav = [
   { label: "Home", icon: Home },
   { label: "Trending", icon: Flame },
@@ -28,8 +25,7 @@ const studioNav = [
   { label: "AI Content Creator", icon: Sparkles, isChild: true },
 ];
 
-// 22
-export const Sidebar: React.FC = () => {
+export default function AppSidebar() {
   return (
     <aside className="hidden h-screen w-60 flex-shrink-0 flex-col bg-slate-950/95 px-3 pt-3 pb-4 md:flex">
       {/* Primary nav */}
@@ -79,16 +75,14 @@ export const Sidebar: React.FC = () => {
                 .filter(Boolean)
                 .join(" ")}
             >
-              {!item.isChild && item.icon && (
-                <item.icon className="h-4 w-4" />
-              )}
+              {!item.isChild && <item.icon className="h-4 w-4" />}
               <span>{item.label}</span>
             </button>
           ))}
         </nav>
       </div>
 
-      {/* Settings at bottom */}
+      {/* Settings */}
       <div className="mt-auto border-t border-slate-800/70 pt-3">
         <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-slate-800/80">
           <Settings className="h-4 w-4" />
@@ -97,4 +91,4 @@ export const Sidebar: React.FC = () => {
       </div>
     </aside>
   );
-};
+}
