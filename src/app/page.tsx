@@ -2,7 +2,25 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from "../components/ui/button";
-import { SidebarProvider, Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "../components/ui/sidebar";
+import { SidebarProvide// src/app/page.tsx
+import Header from "@/components/header";
+import Sidebar from "@/components/sidebar";
+import HomeFeed from "@/components/homefeed";
+
+export default function Page() {
+  return (
+    <div className="flex h-screen bg-slate-900 text-slate-100">
+      <Sidebar />
+      <div className="flex flex-1 flex-col">
+        <Header />
+        <main className="flex-1 overflow-y-auto">
+          <HomeFeed />
+        </main>
+      </div>
+    </div>
+  );
+}
+r, Sidebar, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "../components/ui/sidebar";
 import { Toaster } from "../components/ui/toaster";
 import { Icons } from '../components/icons';
 import Link from 'next/link';
