@@ -1,47 +1,29 @@
-import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  NavLink
-} from 'react-router-dom';
-import Home from './pages/Home';
-import CreatorStudio from './pages/CreatorStudio';
-import Profile from './pages/Profile';
-import Settings from './pages/Settings';
+// src/App.tsx
+// 01
+import React from "react";
+import { Header } from "./components/layout/Header";
+import { Sidebar } from "./components/layout/Sidebar";
+import { HomeFeed } from "./components/home/HomeFeed";
 
-const linkClasses = ({ isActive }: { isActive: boolean }) =>
-  isActive
-    ? 'text-white'
-    : 'text-gray-400 hover:text-white';
-
-export default function App() {
+// 08
+const App: React.FC = () => {
   return (
-    <Router>
-      <nav className="bg-gray-900 p-4 flex space-x-4">
-        <NavLink to="/" end className={linkClasses}>
-          Home
-        </NavLink>
-        <NavLink to="/studio" className={linkClasses}>
-          Studio
-        </NavLink>
-        <NavLink to="/profile" className={linkClasses}>
-          Profile
-        </NavLink>
-        <NavLink to="/settings" className={linkClasses}>
-          Settings
-        </NavLink>
-      </nav>
+    <div className="flex h-screen bg-slate-900 text-slate-100">
+      {/* Sidebar - darker background to create visual split */}
+      <Sidebar />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/studio" element={<CreatorStudio />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-      </Routes>
-    </Router>
+      {/* Main area */}
+      <div className="flex flex-1 flex-col">
+        {/* Header - darker background, no nav lines */}
+        <Header />
+
+        {/* Content area - same tone as video background */}
+        <main className="flex-1 overflow-y-auto">
+          <HomeFeed />
+        </main>
+      </div>
+    </div>
   );
-}
+};
 
-
-
+export default App;
