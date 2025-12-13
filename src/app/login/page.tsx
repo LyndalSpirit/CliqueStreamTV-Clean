@@ -1,104 +1,188 @@
+// src/app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "https://cliquestreamtv-clean.onrender.com";
+type AuthMode = "login" | "signup";
+
+function normalizeBaseUrl(url: string) {
+  // Removes trailing slash to prevent //auth/login
+  return url.replace(/\/+$/, "");
+}
 
 export default function LoginPage() {
   const router = useRouter();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+
+  // ✅ Default to SIGNUP so first-time users don’t “accidentally login”
+  const [mode, setMode] = useState<AuthMode>("signup");
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>("");
+
+  const API = useMemo(() => {
+    const raw =
+      process.env.NEXT_PUBLIC_API_URL ||
+      "https://cliquestreamtv-clean.onrender.com";
+    return normalizeBaseUrl(raw);
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setBusy(true);
+    setError("");
+    setLoading(true);
 
     try {
-      const url = mode === "login" ? `${API}/auth/login` : `${API}/auth/register`;
-      const body =
+      const endpoint = mode === "login" ? "/auth/login" : "/auth/register";
+
+      const payload =
         mode === "login"
           ? { email, password }
-          : { email, password, displayName: displayName || email.split("@")[0] };
+          : {
+              email,
+              password,
+              displayName: displayName || email.split("@")[0] || "CLIQUE User",
+            };
 
-      const res = await fetch(url, {
+      const res = await fetch(`${API}${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify(payload),
       });
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data?.error || "Request failed");
+      // If the server returns non-JSON, this prevents “crash on json()”
+      const text = await res.text();
+      let data: any = null;
+      try {
+        data = text ? JSON.parse(text) : null;
+      } catch {
+        data = null;
+      }
 
-      if (!data?.token) throw new Error("No token returned from backend");
+      if (!res.ok) {
+        const msg =
+          data?.error ||
+          data?.message ||
+          `${res.status} ${res.statusText}` ||
+          "Request failed";
+        throw new Error(msg);
+      }
 
-      localStorage.setItem("clique_token", data.token);
+      // Expect token from backend
+      const token = data?.token;
+      if (!token) {
+        throw new Error("Login succeeded but no token was returned by the server.");
+      }
 
-      // Optional: immediately confirm identity
-      // await fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${data.token}` } });
+      localStorage.setItem("clique_token", token);
 
-      router.push("/"); // back home
+      // Optional: store user snapshot if returned
+      if (data?.user) {
+        localStorage.setItem("clique_user", JSON.stringify(data.user));
+      }
+
+      router.push("/");
       router.refresh();
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      // This catches CORS / network / backend-down conditions too
+      setError(err?.message || "Request failed");
     } finally {
-      setBusy(false);
+      setLoading(false);
     }
   }
 
   return (
-    <div style={{ maxWidth: 420, margin: "40px auto", padding: 16 }}>
-      <h1 style={{ fontSize: 22, marginBottom: 8 }}>
-        {mode === "login" ? "Login" : "Create Account"}
-      </h1>
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center px-4">
+      <div className="w-full max-w-md rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <h1 className="text-2xl font-semibold text-center mb-1">Login</h1>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-        <button onClick={() => setMode("login")} disabled={busy}>
-          Login
-        </button>
-        <button onClick={() => setMode("signup")} disabled={busy}>
-          Signup
-        </button>
-      </div>
+        {/* Tabs */}
+        <div className="flex justify-center gap-4 mb-5 text-sm">
+          <button
+            type="button"
+            onClick={() => {
+              setMode("login");
+              setError("");
+            }}
+            className={`pb-1 border-b-2 ${
+              mode === "login"
+                ? "border-slate-100 text-slate-100"
+                : "border-transparent text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Login
+          </button>
 
-      <form onSubmit={submit} style={{ display: "grid", gap: 10 }}>
-        {mode === "signup" && (
-          <input
-            placeholder="Display name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-          />
-        )}
-
-        <input
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
-        />
-
-        <input
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-        />
-
-        <button type="submit" disabled={busy}>
-          {busy ? "Working..." : mode === "login" ? "Login" : "Create account"}
-        </button>
-
-        {error && <div style={{ color: "tomato" }}>{error}</div>}
-        <div style={{ fontSize: 12, opacity: 0.7 }}>
-          Backend: {API}
+          <button
+            type="button"
+            onClick={() => {
+              setMode("signup");
+              setError("");
+            }}
+            className={`pb-1 border-b-2 ${
+              mode === "signup"
+                ? "border-slate-100 text-slate-100"
+                : "border-transparent text-slate-400 hover:text-slate-200"
+            }`}
+          >
+            Signup
+          </button>
         </div>
-      </form>
+
+        <form onSubmit={submit} className="space-y-3">
+          {mode === "signup" && (
+            <input
+              type="text"
+              placeholder="Display name (optional)"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              className="w-full h-10 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-slate-400"
+            />
+          )}
+
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            autoComplete="email"
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full h-10 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-slate-400"
+            required
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full h-10 rounded-md border border-slate-700 bg-slate-950 px-3 text-sm outline-none focus:border-slate-400"
+            required
+          />
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full h-10 rounded-md bg-slate-100 text-slate-950 text-sm font-medium hover:bg-white disabled:opacity-60"
+          >
+            {loading ? "Please wait..." : mode === "login" ? "Login" : "Create Account"}
+          </button>
+
+          {error && (
+            <div className="text-center text-sm text-red-400 pt-2">
+              {error}
+            </div>
+          )}
+
+          <div className="text-center text-xs text-slate-500 pt-2">
+            Backend: <span className="text-slate-400">{API}</span>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
