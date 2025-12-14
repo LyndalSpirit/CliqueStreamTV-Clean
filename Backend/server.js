@@ -1,14 +1,14 @@
 // server.js
 const express = require("express");
 const cors = require("cors");
+require("dotenv").config();
 
 const authRoutes = require("./routes/auth");
 
 const app = express();
 
 /**
- * ✅ CORS
- * Allow Netlify + local development.
+ * ✅ CORS: allow Netlify + local dev
  */
 const allowedOrigins = [
   "https://cliquestreamtv.netlify.app",
@@ -20,9 +20,11 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow requests with no origin (curl/postman)
+      // Allow tools like curl/postman with no origin
       if (!origin) return callback(null, true);
+
       if (allowedOrigins.includes(origin)) return callback(null, true);
+
       return callback(new Error(`CORS blocked for origin: ${origin}`));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -31,30 +33,27 @@ app.use(
   })
 );
 
-// ✅ Always respond to preflight
+// ✅ Preflight
 app.options("*", cors());
 
 /**
- * ✅ JSON Body parsing (IMPORTANT)
- * - Ensure it runs BEFORE routes
- * - Increase limit a bit so it never chokes on normal payloads
+ * ✅ Body parsing MUST come before routes
  */
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 
 /**
- * ✅ Debug middleware so we can see what headers/body arrive (temporarily)
- * (You can remove this later.)
+ * ✅ Debug: log what arrives for auth routes (temporary)
  */
 app.use((req, res, next) => {
   if (req.path.startsWith("/auth")) {
-    console.log("---- INCOMING AUTH REQUEST ----");
+    console.log("---- AUTH REQUEST ----");
     console.log("METHOD:", req.method);
     console.log("PATH  :", req.path);
+    console.log("ORIGIN:", req.headers.origin);
     console.log("CT    :", req.headers["content-type"]);
-    console.log("ORIGIN:", req.headers["origin"]);
     console.log("BODY  :", req.body);
-    console.log("--------------------------------");
+    console.log("----------------------");
   }
   next();
 });
@@ -64,10 +63,12 @@ app.get("/", (req, res) => {
   res.status(200).send("Welcome to CLIQUE TV API");
 });
 
-// Routes
+// ✅ Routes
 app.use("/auth", authRoutes);
 
-// Error handler: returns clean JSON instead of generic HTML
+/**
+ * ✅ JSON error handler (so frontend gets readable errors)
+ */
 app.use((err, req, res, next) => {
   console.error("SERVER ERROR:", err);
   res.status(400).json({
